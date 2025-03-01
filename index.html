@@ -1,0 +1,1284 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Safaricom Demo - Line Graph</title>
+  <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="" />
+  <link rel="stylesheet" as="style" onload="this.rel='stylesheet'"
+    href="https://fonts.googleapis.com/css2?display=swap&amp;family=Noto+Sans%3Awght%40400%3B500%3B700%3B900&amp;family=Work+Sans%3Awght%40400%3B500%3B700%3B900" />
+  <link rel="icon" type="image/x-icon" href="data:image/x-icon;base64," />
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+
+  <style>
+    body {
+      font-family: "Work Sans", "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif;
+      background-color: #f1f1f1;
+    }
+
+
+    @keyframes highlightBlink {
+
+      0%,
+      100% {
+        background-color: #fff9c4;
+      }
+
+      50% {
+        background-color: transparent;
+      }
+    }
+
+    .highlight-flicker {
+      animation: highlightBlink 1.5s ease-in-out 3;
+    }
+
+    @keyframes redFlicker {
+
+      0%,
+      100% {
+        background-color: rgba(255, 0, 0, 0.3);
+        color: red;
+      }
+
+      50% {
+        background-color: transparent;
+        color: inherit;
+      }
+    }
+
+    .highlight-red {
+      animation: redFlicker 1.5s ease-in-out 3;
+    }
+
+    @keyframes yellowFlicker {
+
+      0%,
+      100% {
+        background-color: rgba(255, 255, 0, 0.3);
+        color: goldenrod;
+      }
+
+      50% {
+        background-color: transparent;
+        color: inherit;
+      }
+    }
+
+    .highlight-yellow {
+      animation: yellowFlicker 1.5s ease-in-out 3;
+    }
+
+
+    @keyframes thrumming {
+      0% {
+        transform: scale(1);
+      }
+
+      50% {
+        transform: scale(1.1);
+      }
+
+      100% {
+        transform: scale(1);
+      }
+    }
+
+    .paused {
+      animation-play-state: paused !important;
+    }
+
+
+    .thrumming {
+      animation: thrumming 1s infinite ease-in-out;
+    }
+
+    @keyframes thrummingGlow {
+      0% {
+        fill: #3ab54a;
+        transform: scale(1);
+      }
+
+      50% {
+        fill: #4fd267;
+        transform: scale(1.1);
+      }
+
+      100% {
+        fill: #3ab54a;
+        transform: scale(1);
+      }
+    }
+
+    .thrumming path {
+      animation: thrummingGlow 1s infinite ease-in-out;
+    }
+
+    .fade-in {
+      opacity: 0;
+      transform: translateX(20px);
+      animation: fadeIn 0.5s forwards;
+    }
+
+    @keyframes fadeIn {
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    .modal-bg {
+      background-color: rgba(0, 0, 0, 0.4);
+    }
+
+    .modal {
+      transition: all 0.3s ease;
+    }
+
+    .modal-hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .modal-content {
+      transform: scale(0.95);
+      transition: transform 0.3s ease;
+    }
+
+    .modal:not(.modal-hidden) .modal-content {
+      transform: scale(1);
+    }
+
+    .tip-enter {
+      opacity: 0;
+      transform: scale(0.9);
+    }
+
+    .tip-enter-active {
+      opacity: 1;
+      transform: scale(1);
+      transition: opacity 0.3s, transform 0.3s;
+    }
+
+    .tip-exit {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .tip-exit-active {
+      opacity: 0;
+      transform: scale(0.9);
+      transition: opacity 0.3s, transform 0.3s;
+    }
+
+    .spinner {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #3ab54a;
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% {
+        transform: rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    #microphoneIcon.recording {
+      position: relative;
+    }
+
+    .recording::before {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(1);
+      width: 100%;
+      height: 100%;
+      border: 2px solid #3ab54a;
+      border-radius: 50%;
+      opacity: 0.6;
+      animation: micWave 2s infinite;
+    }
+
+    @keyframes micWave {
+      0% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 0.6;
+      }
+
+      100% {
+        transform: translate(-50%, -50%) scale(2.5);
+        opacity: 0;
+      }
+    }
+  </style>
+</head>
+
+<body class="relative flex min-h-screen flex-col overflow-x-hidden">
+
+  <div class="layout-container flex h-full grow flex-col">
+    <header
+      class="flex items-center justify-between whitespace-nowrap border-b border-solid border-b-[#7f7f7f] px-10 py-3">
+      <div class="flex items-center gap-4 text-[#111714]">
+        <h2 class="text-[#3ab54a] text-lg font-bold leading-tight tracking-[-0.015em]">Safaricom</h2>
+      </div>
+
+      <div class="flex flex-1 justify-end gap-8">
+        <div class="flex items-center gap-9">
+          <a class="text-[#111714] text-sm font-medium leading-normal" href="#">Dashboard</a>
+          <a class="text-[#111714] text-sm font-medium leading-normal" href="#">View360</a>
+          <a class="text-[#111714] text-sm font-medium leading-normal" href="#">Coaching</a>
+        </div>
+
+        <div class="flex gap-2">
+          <button
+            class="flex items-center justify-center overflow-hidden rounded-xl h-10 bg-[#f0f4f2] text-[#111714] gap-2 text-sm font-bold leading-normal px-2.5">
+            <svg width="20px" height="20px" fill="#3ab54a" viewBox="0 0 256 256">
+              <path
+                d="M140,180a12,12,0,1,1-12-12A12,12,0,0,1,140,180ZM128,72c-22.06,0-40,16.15-40,36v4a8,8,0,0,0,16,0v-4c0-11,10.77-20,24-20s24,9,24,20-10.77,20-24,20a8,8,0,0,0-8,8v8a8,8,0,0,0,16,0v-.72c18.24-3.35,32-17.9,32-35.28C168,88.15,150.06,72,128,72Zm104,56A104,104,0,1,1,128,24,104.11,104.11,0,0,1,232,128Zm-16,0a88,88,0,1,0-88,88A88.1,88.1,0,0,0,216,128Z" />
+            </svg>
+          </button>
+          <button
+            class="flex items-center justify-center overflow-hidden rounded-xl h-10 bg-[#f0f4f2] text-[#111714] gap-2 text-sm font-bold leading-normal px-2.5">
+            <svg width="20px" height="20px" fill="#3ab54a" viewBox="0 0 256 256">
+              <path
+                d="M216,40H40A16,16,0,0,0,24,56V184a16,16,0,0,0,16,16H99.47l14.81,24.23a16,16,0,0,0,27.41.06L156.53,200H216a16,16,0,0,0,16-16V56A16,16,0,0,0,216,40Zm0,144H156.53a16.07,16.07,0,0,0-13.69,7.71L128,216l-14.85-24.3A16.08,16.08,0,0,0,99.47,184H40V56H216Z" />
+            </svg>
+          </button>
+
+          <div class="relative">
+            <button
+              class="flex items-center justify-center overflow-hidden rounded-xl h-10 w-10 bg-[#f0f4f2] text-[#111714] gap-2 text-sm font-bold leading-normal px-2.5"
+              onclick="openAlertsModal()">
+              <svg width="20px" height="20px" fill="#3ab54a" viewBox="0 0 256 256">
+                <path
+                  d="M128,28a84.09,84.09,0,0,0-84,84v27.42c0,9.29-2.85,18.09-8.08,23.59C28.46,166.36,24,168.63,24,176c0,8.94,7.35,16,16.4,16H89.58a38,38,0,0,0,76.84,0h49.22c9.05,0,16.4-7.06,16.4-16,0-7.37-4.46-9.64-11.92-12.99-5.23-5.5-8.08-14.3-8.08-23.59V112A84.09,84.09,0,0,0,128,28Zm10.27,160H117.73a22,22,0,0,0,20.54,12.67h0A22,22,0,0,0,138.27,188Z">
+                </path>
+              </svg>
+            </button>
+            <span id="alertBadge"
+              class="absolute top-0 right-0 w-4 h-4 rounded-full bg-red-600 text-white text-xs flex items-center justify-center"
+              style="display: none;">1</span>
+          </div>
+        </div>
+
+        <div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10"
+          style='background-image: url("https://i.pinimg.com/736x/b8/d8/c5/b8d8c54c03e3d1a3cc050578e7d46389.jpg");'>
+        </div>
+      </div>
+    </header>
+
+
+
+    <div class="gap-1 px-6 flex flex-1 justify-center py-5">
+      <div class="layout-content-container flex flex-col max-w-[920px] flex-2">
+        <h2 class="text-[#111714] text-lg font-bold leading-tight tracking-[-0.015em] px-4 text-left pb-2 pt-4">
+          Incoming Call
+          <span id="redDot" class="ml-2 hidden w-2 h-2 rounded-full bg-red-500"></span>
+        </h2>
+
+        <div
+          class="flex gap-4 w-[920px] h-[300px] overflow-y-auto rounded-lg border border-[#3ab54a] bg-white p-4 items-start">
+          <div class="flex flex-col items-center cursor-pointer" id="microphoneContainer" onclick="toggleRecording()">
+            <div id="microphoneIcon" class="text-[#121613]">
+              <svg id="microphoneIcon" xmlns="http://www.w3.org/2000/svg" width="52px" height="52px"
+                viewBox="0 0 256 256">
+                <path
+                  d="M128,176a48.05,48.05,0,0,0,48-48V64a48,48,0,0,0-96,0v64A48.05,48.05,0,0,0,128,176ZM96,64a32,32,0,0,1,64,0v64a32,32,0,0,1-64,0Zm40,143.6V232a8,8,0,0,1-16,0V207.6A80.11,80.11,0,0,1,48,128a8,8,0,0,1,16,0,64,64,0,0,0,128,0,8,8,0,0,1,16,0A80.11,80.11,0,0,1,136,207.6Z"
+                  fill="#3ab54a">
+                </path>
+              </svg>
+            </div>
+            <h2 class="text-[#121613] text-base font-bold leading-tight mt-2">Mute</h2>
+          </div>
+          <div class="flex-1 pl-4">
+            <div id="liveTranscription" class="flex flex-col gap-2"></div>
+          </div>
+        </div>
+
+
+
+        <br />
+        <p class="text-[#3ab54a] text-base font-medium leading-normal">
+          Biometrics recognized:
+          <span id="fullName" class="font-bold cursor-pointer" onclick="revealName()">Alice K*****</span>.
+        </p>
+        <h3 class="text-[#111714] text-lg font-bold leading-tight tracking-[-0.015em] px-4 pb-2 pt-4">
+          Recognized Speech
+        </h3>
+
+        <div class="flex gap-4 overflow-y-auto rounded-lg bg-white p-4 items-start">
+          <div id="recognizedSpeech" class="flex flex-col gap-2"></div>
+        </div>
+
+      </div>
+
+      <div class="layout-content-container flex flex-col w-[360px]">
+        <div id="suggestionsContainer"></div>
+        <div id="toastContainer" class="fixed bottom-4 right-4 flex flex-col gap-2"></div>
+        <h3 class="text-[#111714] text-lg font-bold leading-tight tracking-[-0.015em] px-4 pb-2 pt-4">Sentiment</h3>
+        <div class="px-4 py-4">
+          <svg id="sentimentChart" width="300" height="120" style="background: #fafafa; border: 1px solid #e0e0e0;">
+          </svg>
+        </div>
+        <br /><br /><br />
+
+        <div id="newContainer" class="px-4 py-4">
+          <div id="loadingAnimation" class="hidden flex items-center gap-2">
+            <div class="spinner"></div>
+            <span>Generating call report...</span>
+          </div>
+          <div id="callReport" class="hidden flex flex-col gap-2">
+            <div class="flex items-center gap-2">
+              <span class="text-gray-800 font-medium">Call report generated.</span>
+
+              <button id="downloadReport"
+                class="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75 transition"
+                onclick="openReportModal()">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                  <polyline points="7 10 12 15 17 10" />
+                  <line x1="12" y1="15" x2="12" y2="3" />
+                </svg>
+                Download
+              </button>
+            </div>
+            <a href="#" id="coachingTips" class="text-blue-500 underline">Coaching tips and feedback</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="summaryModal" class="fixed inset-0 flex items-center justify-center modal-bg modal-hidden modal">
+    <div class="modal-content bg-white rounded p-6 w-96 shadow-lg">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-xl font-bold text-gray-800">Interaction Logged</h2>
+        <button onclick="closeSummaryModal()" class="text-gray-500 hover:text-gray-700">
+          &times;
+        </button>
+      </div>
+      <p class="text-sm text-gray-600 mb-2">Here is a quick summary of the call:</p>
+      <textarea id="summaryText" class="w-full border border-gray-300 rounded p-2 text-sm" rows="4">
+        Customer called about network issues. 
+        Agent provided troubleshooting steps.
+      </textarea>
+
+      <div class="mt-4 flex justify-end gap-3">
+        <button class="bg-gray-200 text-gray-700 px-3 py-1 rounded hover:bg-gray-300" onclick="editSummary()">
+          Edit
+        </button>
+        <button class="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600" onclick="proceedToFollowup()">
+          Looks Good
+        </button>
+      </div>
+    </div>
+  </div>
+
+
+
+
+  <div id="alertsModal" class="fixed inset-0 flex items-center justify-center modal-bg modal-hidden modal">
+    <div class="modal-content bg-white rounded p-6 w-96 shadow-lg">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-xl font-bold text-gray-800">New Alert</h2>
+        <button onclick="closeAlertsModal()" class="text-gray-500 hover:text-gray-700">
+          &times;
+        </button>
+      </div>
+      <p class="text-sm text-gray-600 mb-2">
+        Increased network coverage issues in <b>Naivasha county</b> detected.
+      </p>
+      <p class="text-sm text-gray-600 mb-4">
+        Customers are reporting more dropped calls than usual.
+      </p>
+      <div class="flex justify-end gap-3">
+        <button class="bg-blue-100 text-blue-700 px-3 py-1 rounded hover:bg-blue-200" onclick="viewTrendDetails()">
+          View Trend Details
+        </button>
+        <button class="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600" onclick="acknowledgeAlert()">
+          Acknowledge Alert
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div id="followupModal" class="fixed inset-0 flex items-center justify-center modal-bg modal-hidden modal">
+    <div class="modal-content bg-white rounded p-6 w-96 shadow-lg">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-xl font-bold text-gray-800">Automated Follow-Up</h2>
+        <button onclick="closeFollowupModal()" class="text-gray-500 hover:text-gray-700">
+          &times;
+        </button>
+      </div>
+      <p class="text-sm text-gray-600 mb-2">
+        Based on the call context, you can send a pre-written SMS template offering an upgraded package.
+      </p>
+      <button class="bg-blue-500 text-white px-4 py-1 rounded hover:bg-blue-600 mt-4" onclick="sendSmsTemplate()">
+        Send Package Offers SMS Template
+      </button>
+    </div>
+  </div>
+
+
+  <div id="reportModal" class="fixed inset-0 flex items-center justify-center modal-bg modal-hidden modal">
+    <div class="modal-content bg-white rounded p-6 w-170 shadow-lg">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-xl font-bold text-gray-800">Call Summary</h2>
+        <button onclick="closeReportModal()" class="text-gray-500 hover:text-gray-700">&times;</button>
+      </div>
+
+      <pre id="reportJson" class="bg-gray-100 p-2 rounded text-xs overflow-x-auto text-gray-800">
+        <p class="text-left">
+          Customer_Name: "A**** K*****",<br/>
+          MSISDN: 0712******, <br/>
+          ID_Number: "************",<br/>
+          Agent_Name: "Jim",<br/>
+          Caller_Reason: "Network issues",<br/>
+          Details: "The customer reported persistent network connectivity issues with frequent dropped calls. 
+                   The agent verified coverage in Nairobi West near the main hospital.
+                   Restarting the phone and checking SIM insertion were suggested. Further diagnostics steps were
+                   provided to ensure customer satisfaction and avoid recurring issues. The overall sentiment
+                   was negative but improved with assistance."
+        </p>
+      </pre>
+      <div class="mt-4 flex justify-end">
+
+        <button onclick="downloadFullReport()"
+          class="flex items-center gap-2 bg-green-600 text-white px-3 py-1 rounded-md hover:bg-green-700 transition">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+            <polyline points="7 10 12 15 17 10" />
+            <line x1="12" y1="15" x2="12" y2="3" />
+          </svg>
+          Download Full Report
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div id="coachingModal" class="fixed inset-0 flex items-center justify-center modal-bg modal-hidden modal">
+    <div class="modal-content bg-white rounded p-6 w-96 shadow-lg">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-xl font-bold text-gray-800">Coaching Feedback</h2>
+        <button onclick="closeCoachingModal()" class="text-gray-500 hover:text-gray-700">&times;</button>
+      </div>
+      <h5 class="text-xl font-bold text-green-600">Good Job Jim!</h5>
+      <p class="text-sm text-gray-700 mb-4">
+        Your fast approach in verifying the customer's details and suggesting quick solutions
+        was commendable.
+        You've made significant improvements in your call-handling skills.
+      </p>
+      <h3 class="text-gray-900 font-semibold mb-2">Recommendations:</h3>
+      <ul class="list-disc list-inside text-sm text-gray-700 space-y-2">
+        <li>
+          <span class="font-medium">Remember not to interrupt the customer while they speak.</span>
+          <span class="text-blue-500 underline cursor-pointer ml-1" onclick="toggleMore('rec1')">See more</span>
+          <p id="rec1" class="hidden mt-1">
+            Allowing the customer to finish fosters trust and shows respect for their concerns.
+          </p>
+        </li>
+        <li>
+          <span class="font-medium">Always empathize with the customer.</span>
+          <span class="text-blue-500 underline cursor-pointer ml-1" onclick="toggleMore('rec2')">See more</span>
+          <p id="rec2" class="hidden mt-1">
+            Acknowledging their frustrations and using statements like "I understand" can help de-escalate tension.
+          </p>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <div id="floatingAISuggestions" class="fixed top-20 right-6 flex flex-col gap-3 z-50"></div>
+
+  <script>
+    let isRecording = false;
+    let dataPoints = [];
+    let alertCount = 0;
+    let suggestionIndex = 0;
+    let transcriptionActive = true;
+    let recognizedSpeechTimeouts = [];
+
+    const liveTranscriptData = [
+      {
+        time: "0:00:03",
+        text: "Ah... hello...hello? Hapo ni Safaricom.",
+        sentiment: "neutral",
+        speaker: "Customer: Alice"
+      },
+      {
+        time: "0:00:07",
+        text: "Hello, ndio, hapa ni Safaricom. Habari ya asubui mteja, naitwa J** kutoka Safaricom. Nikusaidiaje 		siku ya leo?",
+        sentiment: "neutral",
+        speaker: "Agent: Jim"
+      },
+      {
+        time: "0:00:16",
+        text: "Oh sawa. I'm having trouble with my network. It's been... ah, it's been dropping calls all day.",
+        sentiment: "negative",
+        speaker: "Customer: Alice"
+      },
+      {
+        time: "0:00:22",
+        text: "I see. We... we definitely want to fix that. Let me confirm your location and see if there's an 		       outage.",
+        sentiment: "positive",
+        speaker: "Agent: Jim"
+      },
+      {
+        time: "0:00:28",
+        text: "Yes I am losing a lot of business. Your service has not been great lately. Ata naskia social media-",
+        sentiment: "negative",
+        speaker: "Customer: Alice"
+      },
+      {
+        time: "0:00:33",
+        text: "Where are you--",
+        sentiment: "neutral",
+        speaker: "Agent: Jim",
+        tip: "show",
+        glow: "red"
+      },
+      {
+        time: "0:00:28",
+        text: "Have you found the issue? Ama you've blocked the connection ya my simcard?",
+        sentiment: "negative",
+        speaker: "Customer: Alice",
+        tip: "show"
+      },
+      {
+        time: "0:00:33",
+        text: "We apologize for the inconvenience Alice. We understand how important a phone is to a business ",
+        sentiment: "neutral",
+        speaker: "Agent: Jim",
+        tip: "show",
+        glow: "red"
+      },
+      {
+        time: "0:00:33",
+        text: "Nitakuuliza maswali machache, which will help us troubleshoot the issue. Are you with me Alice?",
+        sentiment: "neutral",
+        speaker: "Agent: Jim",
+        tip: "suggest1",
+        glow: "red"
+      },
+      {
+        time: "0:00:28",
+        text: "Oh, oh, uhm..sawasawa. Ask away.",
+        sentiment: "neutral",
+        speaker: "Customer: Alice"
+      },
+      {
+        time: "0:00:22",
+        text: "Thank you Alice. Can you confirm your current location and whether you've had connectivity there before.",
+        sentiment: "positive",
+        speaker: "Agent: Jim",
+        glow: "yellow"
+
+      },
+      {
+        time: "0:00:28",
+        text: "Oh, oh, I'm ..I'm..in... in Vihiga County right now, a place called Madzuu. It's my sister's place.",
+        sentiment: "neutral",
+        speaker: "Customer: Alice",
+        tip: "suggest2"
+      },
+      {
+        time: "0:00:33",
+        text: "Alright. Could you try restarting your phone to see if it helps?",
+        sentiment: "neutral",
+        speaker: "Agent: Jim",
+        glow: "yellow"
+      },
+      {
+        time: "0:00:38",
+        text: "I just... I just did that, but it's still the same. Uh... it's really frustrating.",
+        sentiment: "negative",
+        speaker: "Customer: Alice"
+      },
+      {
+        time: "0:00:42",
+        text: "I understand. Let me confirm if there's any issue in the area. Hmmm...seems like everything is okay network-wise.",
+        sentiment: "neutral",
+        speaker: "Agent: Jim",
+        tip: "suggest3"
+      },
+      {
+        time: "0:00:48",
+        text: "Sure, okay. I'd appreciate any help you can give me.",
+        sentiment: "neutral",
+        speaker: "Customer: Alice"
+      },
+    ];
+
+    const recognizedSpeechData = [
+      {
+        time: "10:05 AM",
+        speaker: "Alice",
+        text: "Hello...hello? Hapo ni Safaricom. The line is fuzzy."
+      },
+      {
+        time: "10:06 AM",
+        speaker: "Agent: Jim",
+        text: "Hello, ndio, hapa ni Safaricom. Habari ya asubui mteja, naitwa J** kutoka Safaricom. Nikusaidiaje siku ya leo?",
+      },
+      {
+        time: "10:06 AM",
+        speaker: "Alice",
+        text: "Oh sawa, I'm having trouble with my network, it's been dropping calls all day."
+      },
+      {
+        time: "10:07 AM",
+        speaker: "Agent: Jim",
+        text: "I see. We definitely want to fix that. Let me confirm your location and see if there's an outage."
+      },
+      {
+        time: "10:07 AM",
+        speaker: "Alice",
+        text: "Yes I am losing a lot of business. Your service has not been great lately. Ata naskia social media-",
+      },
+      {
+        time: "10:07 AM",
+        speaker: "Agent: Jim",
+        text: "Where are you-"
+      },
+
+      {
+        time: "10:08 AM",
+        speaker: "Alice",
+        text: "Have you found the issue? Ama you've blocked the connection ya my simcard?",
+      },
+
+      {
+        time: "10:07 AM",
+        speaker: "Agent: Jim",
+        text: "We apologize for the inconvenience Alice. We understand how important a phone is to a business.",
+      },
+
+
+      {
+        time: "10:07 AM",
+        speaker: "Agent: Jim",
+        text: "Nitakuuliza maswali machache, which will help us troubleshoot the issue. Are you with me Alice?",
+      },
+      {
+        time: "10:08 AM",
+        speaker: "Alice",
+        text: "Oh, sawasawa. Ask away."
+
+      },
+      {
+        time: "10:08 AM",
+        speaker: "Agent: Jim",
+        text: "Thank you Alice. Let me confirm your location and whether you've had connectivity there before."
+      },
+      {
+        time: "10:08 AM",
+        speaker: "Alice",
+        text: "I'm in Vihiga County right now, a place called Madzuu. It's my sister's place."
+      },
+      {
+        time: "10:08 AM",
+        speaker: "Agent: Jim",
+        text: "Alright. Could you try restarting your phone to see if it helps?"
+      },
+      {
+        time: "10:08 AM",
+        speaker: "Alice",
+        text: "I just did that, but it's still the same. Uh... it's really frustrating."
+      },
+      {
+        time: "10:08 AM",
+        speaker: "Agent: Jim",
+        text: "I understand. Let me confirm if there's any issue in the area. Hmmm...seems like everything is okay network-wise."
+      },
+      {
+        time: "10:08 AM",
+        speaker: "Alice",
+        text: "Sure, okay. I'd appreciate any help you can give me."
+      },
+
+    ];
+
+    const suggestionLibrary = [
+      {
+        id: "coverageCheck",
+        title: "Network Coverage Check",
+        description: "Ask if coverage was previously stable in their area. Possibly move to a better reception spot.",
+        triggerCheck: (msg) => msg.tip === "suggest1" && msg.speaker.includes("Agent")
+      },
+      {
+        id: "phoneRestart",
+        title: "Phone Restart Advice",
+        description: "Suggest powering off and on, or removing and reinserting the SIM card.",
+        triggerCheck: (msg) => msg.tip === "suggest2" && msg.speaker.includes("Customer")
+      },
+      {
+        id: "routerReset",
+        title: "Home Wi-Fi Router Reset",
+        description: "Ask the customer if they’re also experiencing issues with Wi-Fi. Suggest a quick router reset.",
+        triggerCheck: (msg) => msg.tip === "suggest3" && msg.sentiment === "neutral"
+      },
+      {
+        id: "dataBundle",
+        title: "Recommend Data Bundle",
+        description: "Offer a data bundle upgrade if the customer complains about slow speeds or frequent data depletion.",
+        triggerCheck: (msg) => msg.speaker.includes("Agent") && msg.text.toLowerCase().includes("check")
+      }
+    ];
+
+    const aiSuggestions = [
+      "Allow the customer to finish speaking before interjecting.",
+      "Empathize: Acknowledge the customer's frustration",
+      "Use the customer's name to address them.",
+    ];
+
+    function simulateNewAlert() {
+      alertCount = 1;
+      updateAlertBadge();
+    }
+
+    function updateAlertBadge() {
+      const badge = document.getElementById("alertBadge");
+      if (alertCount > 0) {
+        badge.textContent = String(alertCount);
+        badge.style.display = "flex";
+      } else {
+        badge.style.display = "none";
+      }
+    }
+
+    function openAlertsModal() {
+      if (alertCount <= 0) return;
+      document.getElementById("alertsModal").classList.remove("modal-hidden");
+    }
+
+    function closeAlertsModal() {
+      document.getElementById("alertsModal").classList.add("modal-hidden");
+    }
+
+    function viewTrendDetails() {
+      console.log("Viewing trend details for coverage issues in Naivasha...");
+      alert("Trend details feature not yet implemented.");
+    }
+
+    function acknowledgeAlert() {
+      alertCount = 0;
+      updateAlertBadge();
+      closeAlertsModal();
+    }
+
+    setTimeout(() => {
+      simulateNewAlert();
+    }, 5000);
+
+
+    const shownSuggestions = new Set();
+
+    function showSuggestionCard({ id, title, description }) {
+      if (shownSuggestions.has(id)) return;
+      shownSuggestions.add(id);
+
+      const container = document.getElementById('suggestionsContainer');
+
+      const card = document.createElement('div');
+      card.classList.add(
+        'bg-white',
+        'rounded-lg',
+        'p-4',
+        'fade-in',
+        'mb-2',
+        'shadow-sm'
+      );
+      card.style.cursor = "default";
+
+      const topRow = document.createElement('div');
+      topRow.classList.add('flex', 'items-center', 'gap-3', 'mb-2');
+
+      // card.onclick = () => handleSuggestionClick({ id, title, description });
+      // const leftDiv = document.createElement('div');
+      // leftDiv.classList.add('flex', 'items-center', 'gap-3');
+
+      const iconDiv = document.createElement('div');
+      iconDiv.classList.add('text-[#111714]', 'flex', 'items-center', 'justify-center', 'rounded-lg', 'bg-[#f2f23e]', 'shrink-0', 'size-10');
+      iconDiv.innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#3ab54a" viewBox="0 0 24 24">
+          <circle cx="5" cy="12" r="2"/>
+          <circle cx="12" cy="12" r="2"/>
+          <circle cx="19" cy="12" r="2"/>
+        </svg>
+      `;
+
+      const textDiv = document.createElement('div');
+      textDiv.classList.add('flex', 'flex-col');
+
+      const titleP = document.createElement('p');
+      titleP.classList.add('text-[#111714]', 'text-base', 'font-medium', 'leading-normal', 'line-clamp-1');
+      titleP.textContent = title;
+
+      const descP = document.createElement('p');
+      descP.classList.add('text-[#648771]', 'text-sm', 'font-normal', 'leading-normal', 'line-clamp-2');
+      descP.textContent = description;
+
+      textDiv.appendChild(titleP);
+      textDiv.appendChild(descP);
+
+      topRow.appendChild(iconDiv);
+      topRow.appendChild(textDiv);
+
+      const bottomRow = document.createElement('div');
+      bottomRow.classList.add('flex', 'justify-end', 'gap-3', 'mt-2');
+
+      const acceptBtn = document.createElement('button');
+      acceptBtn.textContent = "Accept";
+      acceptBtn.classList.add(
+        'bg-green-500',
+        'text-white',
+        'px-3',
+        'py-1',
+        'rounded',
+        'hover:bg-green-600',
+        'text-sm'
+      );
+      acceptBtn.onclick = (e) => {
+        e.stopPropagation();
+        card.classList.add('bg-green-100');
+        showToast(`Suggestion "${title}" accepted!`);
+      };
+
+      const dismissBtn = document.createElement('button');
+      dismissBtn.textContent = "Dismiss";
+      dismissBtn.classList.add(
+        'bg-red-500',
+        'text-white',
+        'px-3',
+        'py-1',
+        'rounded',
+        'hover:bg-red-600',
+        'text-sm'
+      );
+      dismissBtn.onclick = (e) => {
+        e.stopPropagation();
+        card.style.transition = "opacity 0.5s ease";
+        card.style.opacity = "0";
+        setTimeout(() => {
+          container.removeChild(card);
+        }, 500);
+      };
+
+      bottomRow.appendChild(acceptBtn);
+      bottomRow.appendChild(dismissBtn);
+
+      card.appendChild(topRow);
+      card.appendChild(bottomRow);
+      container.appendChild(card);
+    }
+
+    function handleSuggestionClick(suggestion) {
+      showToast(`Interaction "${suggestion.title}" logged for Customer A**** K*****!`);
+    }
+
+    function showToast(message) {
+      const container = document.getElementById("toastContainer");
+      const toast = document.createElement("div");
+      toast.classList.add(
+        "bg-green-100",
+        "border",
+        "border-green-400",
+        "text-green-700",
+        "px-4",
+        "py-2",
+        "rounded",
+        "shadow",
+        "mb-2",
+        "fade-in"
+      );
+      toast.textContent = message;
+      container.appendChild(toast);
+      setTimeout(() => {
+        container.removeChild(toast);
+      }, 3000);
+    }
+
+    function checkConsecutiveNegatives(messageObj) {
+      if (messageObj.speaker.includes("Customer")) {
+        if (messageObj.sentiment === "negative") {
+          consecutiveNegatives++;
+        } else if (messageObj.sentiment === "positive") {
+          showMoodEmoji("smile");
+          consecutiveNegatives = 0;
+          return;
+        } else {
+          consecutiveNegatives = 0;
+        }
+        if (consecutiveNegatives >= 2) {
+          showMoodEmoji("frustrated");
+        }
+      } else {
+        consecutiveNegatives = 0;
+      }
+    }
+
+    function showMoodEmoji(mood) {
+      const container = document.getElementById("toastContainer");
+      const moodDiv = document.createElement("div");
+      moodDiv.classList.add("fade-in", "p-2", "rounded", "shadow", "mb-2");
+
+      if (mood === "frustrated") {
+        moodDiv.textContent = "😡 The customer seems frustrated!";
+        moodDiv.classList.add("bg-red-100", "text-red-800");
+      } else if (mood === "smile") {
+        moodDiv.textContent = "😄 The customer seems happier now!";
+        moodDiv.classList.add("bg-yellow-100", "text-yellow-800");
+      }
+
+      container.appendChild(moodDiv);
+      setTimeout(() => {
+        container.removeChild(moodDiv);
+      }, 4000);
+    }
+
+
+    function typeMessage(container, messageObj, callback) {
+      const wrapper = document.createElement('div');
+      wrapper.classList.add('text-sm', 'text-[#648771]');
+
+      const timeP = document.createElement('p');
+      timeP.classList.add('font-medium');
+      timeP.textContent = `${messageObj.time} - ${messageObj.speaker}`;
+      wrapper.appendChild(timeP);
+
+      const textP = document.createElement('p');
+      textP.classList.add('inline-block');
+      wrapper.appendChild(textP);
+
+      container.appendChild(wrapper);
+
+      let i = 0;
+      const fullText = messageObj.text;
+
+      const interval = setInterval(() => {
+        textP.textContent += fullText[i];
+        i++;
+        wrapper.scrollIntoView({ behavior: "smooth", block: "end" });
+
+        if (i >= fullText.length) {
+          clearInterval(interval);
+          checkConsecutiveNegatives(messageObj);
+
+          if (messageObj.glow === "red") {
+            textP.classList.add('highlight-red', 'outer-pulse');
+            setTimeout(() => {
+              textP.classList.remove('highlight-red', 'outer-pulse');
+            }, 4000);
+          } else if (messageObj.glow === "yellow") {
+            textP.classList.add('highlight-yellow', 'outer-pulse');
+            setTimeout(() => {
+              textP.classList.remove('highlight-yellow', 'outer-pulse');
+            }, 4000);
+          }
+
+          callback && callback();
+        }
+      }, 40);
+    }
+
+
+    function typeRecognizedSpeech(container, messageObj, callback) {
+      const wrapper = document.createElement('div');
+      wrapper.classList.add('flex', 'gap-3', 'p-4', 'fade-in');
+
+      const avatar = document.createElement('div');
+      avatar.classList.add('bg-center', 'bg-no-repeat', 'aspect-square', 'bg-cover', 'rounded-full', 'size-10');
+
+      if (messageObj.speaker.includes("Agent")) {
+        avatar.style.backgroundImage = "url('https://i.pinimg.com/736x/b8/d8/c5/b8d8c54c03e3d1a3cc050578e7d46389.jpg')";
+      } else {
+        avatar.style.backgroundImage = "url('https://i.pinimg.com/736x/de/0a/47/de0a470a4617bb6272ad32dea7c497ce.jpg')";
+      }
+
+      wrapper.appendChild(avatar);
+
+      const textContainer = document.createElement('div');
+      textContainer.classList.add('flex', 'flex-1', 'flex-col', 'items-stretch', 'gap-2');
+
+      const header = document.createElement('div');
+      header.classList.add('flex', 'items-center', 'gap-3');
+
+      const speakerP = document.createElement('p');
+      speakerP.classList.add('text-[#121613]', 'text-base', 'font-bold', 'leading-tight');
+      speakerP.textContent = messageObj.speaker.replace("Customer: ", "").replace("Agent: ", "");
+
+      const timeP = document.createElement('p');
+      timeP.classList.add('text-[#6a816d]', 'text-sm', 'font-normal', 'leading-normal');
+      timeP.textContent = messageObj.time;
+
+      header.appendChild(speakerP);
+      header.appendChild(timeP);
+      textContainer.appendChild(header);
+
+      const bodyText = document.createElement('p');
+      bodyText.classList.add('text-[#121613]', 'text-base', 'font-normal', 'leading-normal');
+      bodyText.textContent = messageObj.text;
+      textContainer.appendChild(bodyText);
+
+      wrapper.appendChild(textContainer);
+      container.appendChild(wrapper);
+
+      if (callback) callback();
+    }
+
+
+    function getYFromSentiment(sentiment) {
+      if (sentiment === "positive") return 30;
+      if (sentiment === "negative") return 90;
+      return 60;
+    }
+
+    function updateChart() {
+      const svg = document.getElementById("sentimentChart");
+      let polyline = svg.querySelector("polyline");
+
+      if (!polyline) {
+        polyline = document.createElementNS("http://www.w3.org/2000/svg", "polyline");
+        polyline.setAttribute("fill", "none");
+        polyline.setAttribute("stroke", "#3ab54a");
+        polyline.setAttribute("stroke-width", "2");
+        svg.appendChild(polyline);
+      }
+
+      const pointsStr = dataPoints.map(([x, y]) => `${x},${y}`).join(" ");
+      polyline.setAttribute("points", pointsStr);
+    }
+
+    function animateSentiment(index, sentiment) {
+      const x = 20 + index * 30;
+      const y = getYFromSentiment(sentiment);
+      dataPoints.push([x, y]);
+      updateChart();
+    }
+
+    function maybeShowAISuggestionOnTip(tip) {
+      if (tip === "show") {
+        showAISuggestion(aiSuggestions[suggestionIndex]);
+        suggestionIndex = (suggestionIndex + 1) % aiSuggestions.length;
+      }
+    }
+
+    function toggleRecording() {
+      isRecording = !isRecording;
+      const micIcon = document.getElementById('microphoneIcon');
+      const redDot = document.getElementById('redDot');
+      const loadingAnimation = document.getElementById('loadingAnimation');
+      const callReport = document.getElementById('callReport');
+
+      if (isRecording) {
+        document.getElementById('liveTranscription').classList.remove('paused');
+        document.getElementById('recognizedSpeech').classList.remove('paused');
+
+        micIcon.classList.add('thrumming');
+        micIcon.classList.add('recording')
+        redDot.classList.remove('hidden');
+        redDot.classList.add('thrumming');
+        loadingAnimation.classList.remove('hidden');
+        callReport.classList.add('hidden');
+        simulateTranscripts();
+      } else {
+        micIcon.classList.remove('thrumming');
+        micIcon.classList.remove('recording');
+        redDot.classList.add('hidden');
+        redDot.classList.remove('thrumming');
+        loadingAnimation.classList.add('hidden');
+        callReport.classList.remove('hidden');
+        stopTranscription();
+        openSummaryModal();
+      }
+    }
+
+    function openSummaryModal() {
+      const modal = document.getElementById('summaryModal');
+      modal.classList.remove('modal-hidden');
+    }
+    function closeSummaryModal() {
+      const modal = document.getElementById('summaryModal');
+      modal.classList.add('modal-hidden');
+    }
+    function editSummary() {
+      const textarea = document.getElementById('summaryText');
+      textarea.focus();
+    }
+    function proceedToFollowup() {
+      closeSummaryModal();
+      openFollowupModal();
+    }
+
+    function openFollowupModal() {
+      const modal = document.getElementById('followupModal');
+      modal.classList.remove('modal-hidden');
+    }
+    function closeFollowupModal() {
+      const modal = document.getElementById('followupModal');
+      modal.classList.add('modal-hidden');
+    }
+    function sendSmsTemplate() {
+      console.log("Sending package offers SMS template to customer...");
+      showToast("SMS template has been sent to the customer!");
+      closeFollowupModal();
+    }
+
+    function simulateTranscripts() {
+      transcriptionActive = true;
+      const liveContainer = document.getElementById('liveTranscription');
+      const recognizedContainer = document.getElementById('recognizedSpeech');
+      liveContainer.innerHTML = "";
+      recognizedContainer.innerHTML = "";
+      shownSuggestions.clear();
+      document.getElementById("suggestionsContainer").innerHTML = "";
+      dataPoints = [];
+      updateChart();
+
+      let index = 0;
+
+      function processNext() {
+        if (!transcriptionActive) return;
+        if (index >= liveTranscriptData.length) return;
+        const messageObj = liveTranscriptData[index];
+
+        typeMessage(liveContainer, messageObj, () => {
+          animateSentiment(index, messageObj.sentiment);
+
+          suggestionLibrary.forEach(suggestion => {
+            if (suggestion.triggerCheck(messageObj)) {
+              showSuggestionCard(suggestion);
+            }
+          });
+
+          maybeShowAISuggestionOnTip(messageObj.tip);
+          index++;
+          processNext();
+        });
+      }
+      processNext();
+
+      const recognizedSpeechDelay = 4000;
+      recognizedSpeechData.forEach((obj, i) => {
+        let t = setTimeout(() => {
+          if (transcriptionActive) {
+            typeRecognizedSpeech(recognizedContainer, obj);
+          }
+        }, i * 3000 + recognizedSpeechDelay);
+        recognizedSpeechTimeouts.push(t);
+      });
+    }
+
+    function stopTranscription() {
+      transcriptionActive = false;
+      recognizedSpeechTimeouts.forEach(tid => clearTimeout(tid));
+      recognizedSpeechTimeouts = [];
+
+      document.getElementById('liveTranscription').classList.add('paused');
+      document.getElementById('recognizedSpeech').classList.add('paused');
+    }
+
+    function showAISuggestion(message) {
+      const container = document.getElementById("floatingAISuggestions");
+      const tip = document.createElement("div");
+      tip.classList.add("bg-white", "shadow-lg", "rounded-lg", "p-4", "text-sm", "text-gray-700", "tip-enter");
+      tip.innerHTML = `
+        <div class="flex items-center">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#d3360a" viewBox="0 0 24 24" class="mr-2">
+            <path d="M9 21h6v-1H9v1zM12 2C7.58 2 4 5.58 4 10c0 2.16 1.03 4.09 2.66 5.43L7 18h10l.34-2.57C18.97 14.09 20 12.16 20 10c0-4.42-3.58-8-8-8zm2 12H10v-2h4v2zm0-4H10V6h4v4z"/>
+          </svg>
+          <span>${message}</span>
+        </div>
+      `;
+      container.appendChild(tip);
+      tip.offsetWidth;
+      tip.classList.add("tip-enter-active");
+      setTimeout(() => {
+        tip.classList.remove("tip-enter-active");
+        tip.classList.add("tip-exit");
+        tip.offsetWidth;
+        tip.classList.add("tip-exit-active");
+        setTimeout(() => { container.removeChild(tip); }, 300);
+      }, 5000);
+    }
+
+    function revealName() {
+      document.getElementById('fullName').textContent = 'Alice Kirui';
+    }
+
+    function transcriptionEnded() {
+      // document.getElementById('loadingAnimation').classList.add('hidden');
+      // document.getElementById('callReport').classList.remove('hidden');
+    }
+    // setTimeout(transcriptionEnded, 30000);
+
+    function openReportModal() {
+      const maskedCustomerName = "Alice K*****";
+      const maskedIDNumber = "*******90";
+      const agentName = "Jim";
+      const callerReason = "Network Connectivity Issues";
+
+      const details = "The customer reported persistent network connectivity issues with frequent dropped calls. " +
+        "The agent verified coverage in Nairobi West near the main hospital. " +
+        "Restarting the phone and checking SIM insertion were suggested. Further diagnostics steps were " +
+        "provided to ensure customer satisfaction and avoid recurring issues. The overall sentiment " +
+        "was negative but improved with assistance.";
+
+      document.getElementById("reportModal").classList.remove("modal-hidden");
+    }
+
+    function closeReportModal() {
+      document.getElementById("reportModal").classList.add("modal-hidden");
+    }
+
+    function downloadFullReport() {
+      const jsonContent = document.getElementById('reportJson').textContent;
+      const blob = new Blob([jsonContent], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'call_summary.json';
+      document.body.appendChild(a);
+      a.click();
+
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    function openCoachingModal() {
+      document.getElementById("coachingModal").classList.remove("modal-hidden");
+    }
+
+    function closeCoachingModal() {
+      document.getElementById("coachingModal").classList.add("modal-hidden");
+    }
+
+    function toggleMore(id) {
+      const elem = document.getElementById(id);
+      elem.classList.toggle("hidden");
+    }
+
+    document.getElementById("coachingTips").addEventListener("click", function (e) {
+      e.preventDefault();
+      openCoachingModal();
+    });
+  </script>
+</body>
+
+</html>
