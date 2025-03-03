@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Safaricom Demo – Admin Dashboard</title>
+  <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="" />
+  <link rel="stylesheet" as="style"
+    href="https://fonts.googleapis.com/css2?display=swap&amp;family=Noto+Sans%3Awght%40400%3B500%3B700%3B900&amp;family=Work+Sans%3Awght%40400%3B500%3B700%3B900"
+    onload="this.rel='stylesheet'"
+  />
+  <link rel="icon" type="image/x-icon" href="data:image/x-icon;base64," />
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+
+  <style>
+    body {
+      font-family: "Work Sans", "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji", sans-serif;
+      background-color: #f1f1f1;
+    }
+    .fade-in {
+      opacity: 0;
+      transform: translateY(10px);
+      animation: fadeIn 0.4s forwards;
+    }
+    @keyframes fadeIn {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+   
+    html {
+      overflow-x: hidden;
+    }
+  </style>
+</head>
+
+<body class="min-h-screen flex flex-col">
+
+  <header class="bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between">
+    <div class="flex items-center gap-4">
+      <h1 class="text-[#3ab54a] text-xl font-bold tracking-tight">
+        Safaricom
+      </h1>
+      <span class="text-sm text-[#111714] font-medium">
+        Admin Dashboard
+      </span>
+    </div>
+   
+    <nav class="flex items-center gap-6">
+      <a href="hello.html" class="text-sm text-gray-700 hover:text-[#111714]">Dashboard</a>
+      <a href="coaching.html" class="text-sm text-gray-700 hover:text-[#111714]">Coaching</a>
+      <a href="admin.html" class="text-sm font-semibold text-[#3ab54a]">Admin</a>
+    </nav>
+  </header>
+
+  <main class="flex-1 p-4 fade-in">
+   
+    <div class="flex flex-col lg:flex-row lg:items-center justify-between mb-6">
+      <div>
+        <h2 class="text-2xl font-bold text-[#111714] mb-1">
+          Hello, Admin!
+        </h2>
+        <p class="text-sm text-gray-600">
+          View high-level metrics and manage overall operations here.
+        </p>
+      </div>
+
+      <div class="mt-4 lg:mt-0">
+        <button class="bg-[#3ab54a] text-white px-4 py-1.5 rounded hover:bg-[#319442]">
+          Export Summary
+        </button>
+      </div>
+    </div>
+
+    <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+
+      <div class="bg-white p-4 rounded shadow-sm flex flex-col gap-2">
+        <p class="text-gray-600 text-sm">Total Calls (Today)</p>
+        <h3 class="text-2xl font-bold text-[#111714]">1,245</h3>
+        <p class="text-xs text-green-600">+5% vs. yesterday</p>
+      </div>
+
+      <div class="bg-white p-4 rounded shadow-sm flex flex-col gap-2">
+        <p class="text-gray-600 text-sm">Avg Handle Time</p>
+        <h3 class="text-2xl font-bold text-[#111714]">03:32</h3>
+        <p class="text-xs text-green-600">-0:39 from last week</p>
+      </div>
+
+      <div class="bg-white p-4 rounded shadow-sm flex flex-col gap-2">
+        <p class="text-gray-600 text-sm">Negative Sentiment Calls</p>
+        <h3 class="text-2xl font-bold text-[#111714]">153</h3>
+        <p class="text-xs text-green-600">-10% vs. last week</p>
+      </div>
+
+      <div class="bg-white p-4 rounded shadow-sm flex flex-col gap-2">
+        <p class="text-gray-600 text-sm">Agents Active</p>
+        <h3 class="text-2xl font-bold text-[#111714]">36</h3>
+        <p class="text-xs text-gray-500">All scheduled agents are online</p>
+      </div>
+    </section>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+      <div class="bg-white p-4 rounded shadow-sm">
+        <h3 class="text-lg font-bold text-gray-800 mb-3">Call Volume Over Time</h3>
+        
+        <div class="bg-[#f0f4f2] h-64 rounded flex items-center justify-center text-gray-400">
+       
+          <p>Chart placeholder</p>
+        </div>
+      </div>
+
+      <div class="bg-white p-4 rounded shadow-sm">
+        <h3 class="text-lg font-bold text-gray-800 mb-3">Distribution by Region</h3>
+
+        <div class="bg-[#f0f4f2] h-64 rounded flex items-center justify-center text-gray-400">
+          <p>Map / Bar chart placeholder</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white rounded shadow-sm p-4 mt-6">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="text-lg font-bold text-gray-800">Top 5 Issues Today</h3>
+        <button class="text-sm text-gray-500 hover:text-gray-700">
+          View All
+        </button>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm text-left text-gray-600">
+          <thead class="bg-gray-100 text-gray-800 text-xs uppercase">
+            <tr>
+              <th scope="col" class="px-4 py-2">Issue</th>
+              <th scope="col" class="px-4 py-2">Category</th>
+              <th scope="col" class="px-4 py-2">Count</th>
+              <th scope="col" class="px-4 py-2">Trend</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="border-b hover:bg-gray-50">
+              <td class="px-4 py-2">Network Coverage</td>
+              <td class="px-4 py-2">Technical</td>
+              <td class="px-4 py-2">56</td>
+              <td class="px-4 py-2 text-red-600">+12%</td>
+            </tr>
+            <tr class="border-b hover:bg-gray-50">
+              <td class="px-4 py-2">Billing Discrepancies</td>
+              <td class="px-4 py-2">Financial</td>
+              <td class="px-4 py-2">42</td>
+              <td class="px-4 py-2 text-green-600">-5%</td>
+            </tr>
+            <tr class="border-b hover:bg-gray-50">
+              <td class="px-4 py-2">Data Bundle Requests</td>
+              <td class="px-4 py-2">Sales</td>
+              <td class="px-4 py-2">31</td>
+              <td class="px-4 py-2 text-green-600">+8%</td>
+            </tr>
+            <tr class="border-b hover:bg-gray-50">
+              <td class="px-4 py-2">SIM Registration</td>
+              <td class="px-4 py-2">Account</td>
+              <td class="px-4 py-2">27</td>
+              <td class="px-4 py-2 text-red-600">+15%</td>
+            </tr>
+            <tr class="border-b hover:bg-gray-50">
+              <td class="px-4 py-2">Device Upgrades</td>
+              <td class="px-4 py-2">Sales</td>
+              <td class="px-4 py-2">25</td>
+              <td class="px-4 py-2 text-green-600">+2%</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+
+  <footer class="bg-white border-t border-gray-200 p-4 text-center text-sm text-gray-500">
+    &copy; 2025 Safonic
+  </footer>
+</body>
+</html>
