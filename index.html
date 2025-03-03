@@ -9,6 +9,8 @@
     href="https://fonts.googleapis.com/css2?display=swap&amp;family=Noto+Sans%3Awght%40400%3B500%3B700%3B900&amp;family=Work+Sans%3Awght%40400%3B500%3B700%3B900" />
   <link rel="icon" type="image/x-icon" href="data:image/x-icon;base64," />
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
 
   <style>
     body {
@@ -237,9 +239,9 @@
 
       <div class="flex flex-1 justify-end gap-8">
         <div class="flex items-center gap-9">
-          <a class="text-[#111714] text-sm font-medium leading-normal" href="#">Dashboard</a>
+          <a class="text-[#111714] text-sm font-medium leading-normal" href="admin.html">Dashboard</a>
           <a class="text-[#111714] text-sm font-medium leading-normal" href="#">View360</a>
-          <a class="text-[#111714] text-sm font-medium leading-normal" href="#">Coaching</a>
+          <a class="text-[#111714] text-sm font-medium leading-normal" href="coach.html">Coaching</a>
         </div>
 
         <div class="flex gap-2">
@@ -1246,19 +1248,132 @@
       document.getElementById("reportModal").classList.add("modal-hidden");
     }
 
+    // function downloadFullReport() {
+    //   const jsonContent = document.getElementById('reportJson').textContent;
+    //   const blob = new Blob([jsonContent], { type: 'application/json' });
+    //   const url = URL.createObjectURL(blob);
+
+    //   const a = document.createElement('a');
+    //   a.href = url;
+    //   a.download = 'call_summary.json';
+    //   document.body.appendChild(a);
+    //   a.click();
+
+    //   document.body.removeChild(a);
+    //   URL.revokeObjectURL(url);
+    // }
     function downloadFullReport() {
-      const jsonContent = document.getElementById('reportJson').textContent;
-      const blob = new Blob([jsonContent], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(22);
+      doc.text("Detailed Call Analysis Report", 105, 15, { align: "center" });
 
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'call_summary.json';
-      document.body.appendChild(a);
-      a.click();
+      doc.setLineWidth(0.5);
+      doc.line(20, 20, 190, 20);
+      let yPos = 30;
+      const lineSpacing = 8;
+      function addSectionHeading(heading) {
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(16);
+        doc.text(heading, 20, yPos);
+        yPos += lineSpacing;
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(12);
+      }
+      function addWrappedText(text, maxWidth = 170) {
+        const splitText = doc.splitTextToSize(text, maxWidth);
+        splitText.forEach((line) => {
+          if (yPos >= 280) {
+            doc.addPage();
+            yPos = 20; 
+          }
+          doc.text(line, 20, yPos);
+          yPos += 6; 
+        });
+        yPos += 2;
+      }
 
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
+      addSectionHeading("1. Call Metadata");
+      addWrappedText("Call Duration: ~4 minutes (10:05 AM - 10:09 AM)\n" +
+        "Call Type & Channel: Voice Call\n" +
+        "Customer Segment: Retail / Personal User\n");
+
+      addWrappedText("Customer Name: Alice K****\n" +
+        "MSISDN: 0712******\n" +
+        "ID Number: ********90\n" +
+        "Agent Name: Jim (Agent ID: 12345)\n");
+
+      addSectionHeading("2. Full Transcription & Key Highlights");
+      addWrappedText("Below is the conversation flow with notable remarks:\n");
+
+      const recognizedSpeechData = [
+        { time: "10:05 AM", speaker: "Alice", text: "Hello...hello? Hapo ni Safaricom. The line is fuzzy." },
+        { time: "10:06 AM", speaker: "Agent: Jim", text: "Hello, ndio, hapa ni Safaricom. Habari ya asubui mteja, naitwa J** kutoka Safaricom. Nikusaidiaje siku ya leo?" },
+        { time: "10:06 AM", speaker: "Alice", text: "Oh sawa, I'm having trouble with my network, it's been dropping calls all day." },
+        { time: "10:07 AM", speaker: "Agent: Jim", text: "I see. We definitely want to fix that. Let me confirm your location and see if there's an outage." },
+        { time: "10:07 AM", speaker: "Alice", text: "Yes I am losing a lot of business. Your service has not been great lately. Ata naskia social media-" },
+        { time: "10:07 AM", speaker: "Agent: Jim", text: "Where are you-" },
+        { time: "10:08 AM", speaker: "Alice", text: "Have you found the issue? Ama you've blocked the connection ya my simcard?" },
+        { time: "10:07 AM", speaker: "Agent: Jim", text: "We apologize for the inconvenience Alice. We understand how important a phone is to a business." },
+        { time: "10:07 AM", speaker: "Agent: Jim", text: "Nitakuuliza maswali machache, which will help us troubleshoot the issue. Are you with me Alice?" },
+        { time: "10:08 AM", speaker: "Alice", text: "Oh, sawasawa. Ask away." },
+        { time: "10:08 AM", speaker: "Agent: Jim", text: "Thank you Alice. Let me confirm your location and whether you've had connectivity there before." },
+        { time: "10:08 AM", speaker: "Alice", text: "I'm in Vihiga County right now, a place called Madzuu. It's my sister's place." },
+        { time: "10:08 AM", speaker: "Agent: Jim", text: "Alright. Could you try restarting your phone to see if it helps?" },
+        { time: "10:08 AM", speaker: "Alice", text: "I just did that, but it's still the same. Uh... it's really frustrating." },
+        { time: "10:08 AM", speaker: "Agent: Jim", text: "I understand. Let me confirm if there's any issue in the area. Hmmm...seems like everything is okay network-wise." },
+        { time: "10:08 AM", speaker: "Alice", text: "Sure, okay. I'd appreciate any help you can give me." }
+      ];
+
+      recognizedSpeechData.forEach((entry) => {
+        let transcriptLine = `[${entry.time}] ${entry.speaker}: ${entry.text}`;
+        addWrappedText(transcriptLine);
+      });
+      addSectionHeading("3. Sentiment & Emotion Analysis");
+      addWrappedText("Sentiment Overview: The conversation began negatively (customer frustration) and trended toward neutral as the agent provided assistance. Overall, the mood improved by the end.\n");
+      addWrappedText("Emotion Detection: Customer showed signs of frustration and concern about lost business opportunities.\nAnomaly Alerts: A spike in negative sentiment occurred around 10:07 AM when the customer worried about blocked SIM.\n");
+
+      addSectionHeading("4. Issue Categorization & Topics");
+      addWrappedText("Call Reason: Network Connectivity Issues\nKeywords: 'Network', 'Dropped Calls', 'Outage', 'Fuzzy Line'\nIssue Severity: High (business impact mentioned)\n");
+
+      addSectionHeading("5. AI-Driven Recommendations & Actions");
+      addWrappedText("• Suggestion 1: Ask if coverage was previously stable in the area and check if moving to a better reception spot helps.\n" +
+        "• Suggestion 2: Suggest powering off the device, removing, and reinserting SIM.\n" +
+        "• Suggestion 3: Check for Wi-Fi router issues if applicable.\n" +
+        "• Suggestion 4: Offer data bundle upgrade.\n\n" +
+        "Applied Suggestions During Call:\n" +
+        "✔ Phone Restart Advice\n" +
+        "✔ Coverage Check\n\n" +
+        "Coaching Tips for Agent:\n" +
+        "1) Allow the customer to finish speaking before interjecting.\n" +
+        "2) Empathize with the customer's frustration.\n" +
+        "3) Use the customer's name for personalized rapport.\n");
+
+      addSectionHeading("6. Performance Metrics & Quality Scores");
+      addWrappedText("Agent Performance Rating: 8/10 (Good rapport, partially resolved issues)\n" +
+        "First Call Resolution (FCR): Pending (further checks needed)\n" +
+        "Compliance & Script Adherence: Complied with standard greeting and troubleshooting flow.\n");
+
+      addSectionHeading("7. CRM Integration Data");
+      addWrappedText("• Interaction Log: Call automatically logged under Customer ID ********90.\n" +
+        "• Follow-Up Task: Escalate to Technical Support if issue persists.\n" +
+        "• Next Steps: SMS notification with potential data bundle offers.\n");
+
+      addSectionHeading("8. Visual Data & Graphs");
+      addWrappedText("Sentiment Trend: (See appended chart in analytics tool.)\n" +
+        "Issue Frequency Charts: Network connectivity remains a top recurring issue this week.\n");
+
+      addSectionHeading("9. Summary & Insights");
+      addWrappedText("Call Summary: The customer, Alice, reported persistent network connectivity issues. The agent performed initial troubleshooting (location check, phone restart). Sentiment began negatively but improved with assistance.\n" +
+        "Actionable Insights: Recommend follow-up with a network specialist. Proactively offer data bundles or signal boosters in areas with coverage challenges.\n" +
+        "Supervisor Notes: Agent handled frustration well and showed empathy. Consider advanced troubleshooting training to provide faster resolution.\n");
+
+      doc.setFont("helvetica", "italic");
+      doc.setFontSize(10);
+      doc.text("Generated on " + new Date().toLocaleString(), 105, 290, { align: "center" });
+
+      doc.save("Detailed_Call_Analysis_Report.pdf");
     }
 
     function openCoachingModal() {
