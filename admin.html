@@ -11,6 +11,8 @@
   <link rel="icon" type="image/x-icon" href="data:image/x-icon;base64," />
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.2.1/dist/chart.umd.min.js"></script>
+
   <style>
     body {
       font-family: "Work Sans", "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji", sans-serif;
@@ -27,7 +29,6 @@
         transform: translateY(0);
       }
     }
-   
     html {
       overflow-x: hidden;
     }
@@ -35,7 +36,6 @@
 </head>
 
 <body class="min-h-screen flex flex-col">
-
   <header class="bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between">
     <div class="flex items-center gap-4">
       <h1 class="text-[#3ab54a] text-xl font-bold tracking-tight">
@@ -45,7 +45,7 @@
         Admin Dashboard
       </span>
     </div>
-   
+ 
     <nav class="flex items-center gap-6">
       <a href="index.html" class="text-sm text-gray-700 hover:text-[#111714]">Dashboard</a>
       <a href="coach.html" class="text-sm text-gray-700 hover:text-[#111714]">Coaching</a>
@@ -54,7 +54,7 @@
   </header>
 
   <main class="flex-1 p-4 fade-in">
-   
+
     <div class="flex flex-col lg:flex-row lg:items-center justify-between mb-6">
       <div>
         <h2 class="text-2xl font-bold text-[#111714] mb-1">
@@ -73,7 +73,6 @@
     </div>
 
     <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-
       <div class="bg-white p-4 rounded shadow-sm flex flex-col gap-2">
         <p class="text-gray-600 text-sm">Total Calls (Today)</p>
         <h3 class="text-2xl font-bold text-[#111714]">1,245</h3>
@@ -82,8 +81,8 @@
 
       <div class="bg-white p-4 rounded shadow-sm flex flex-col gap-2">
         <p class="text-gray-600 text-sm">Avg Handle Time</p>
-        <h3 class="text-2xl font-bold text-[#111714]">03:32</h3>
-        <p class="text-xs text-green-600">-0:39 from last week</p>
+        <h3 class="text-2xl font-bold text-[#111714]">05:32</h3>
+        <p class="text-xs text-red-600">+0:15 from last week</p>
       </div>
 
       <div class="bg-white p-4 rounded shadow-sm flex flex-col gap-2">
@@ -100,24 +99,18 @@
     </section>
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-
       <div class="bg-white p-4 rounded shadow-sm">
         <h3 class="text-lg font-bold text-gray-800 mb-3">Call Volume Over Time</h3>
-        
-        <div class="bg-[#f0f4f2] h-64 rounded flex items-center justify-center text-gray-400">
-       
-          <p>Chart placeholder</p>
-        </div>
+        <canvas id="callVolumeChart" class="h-64 w-full"></canvas>
       </div>
 
       <div class="bg-white p-4 rounded shadow-sm">
         <h3 class="text-lg font-bold text-gray-800 mb-3">Distribution by Region</h3>
-
-        <div class="bg-[#f0f4f2] h-64 rounded flex items-center justify-center text-gray-400">
-          <p>Map / Bar chart placeholder</p>
-        </div>
+      
+        <canvas id="regionDonutChart" class="h-64 w-full"></canvas>
       </div>
     </div>
+
 
     <div class="bg-white rounded shadow-sm p-4 mt-6">
       <div class="flex items-center justify-between mb-3">
@@ -178,5 +171,90 @@
   <footer class="bg-white border-t border-gray-200 p-4 text-center text-sm text-gray-500">
     &copy; 2025 Safonic
   </footer>
+
+  <script>
+
+    document.addEventListener('DOMContentLoaded', function () {
+      const ctxBar = document.getElementById('callVolumeChart');
+      if (ctxBar) {
+      
+        const callVolumeBarChart = new Chart(ctxBar, {
+          type: 'bar',
+          data: {
+            labels: ['8 AM', '10 AM', '12 PM', '2 PM', '4 PM', '6 PM', '8 PM'],
+            datasets: [
+              {
+                label: 'Call Volume',
+                data: [120, 190, 250, 300, 280, 220, 150],
+                backgroundColor: '#3ab54a',
+                borderColor: '#2e8f38',
+                borderWidth: 1
+              }
+            ]
+          },
+          options: {
+            responsive: true,
+            scales: {
+              y: {
+                beginAtZero: true,
+                title: {
+                  display: true,
+                  text: 'Number of Calls'
+                }
+              }
+            },
+            plugins: {
+              legend: {
+                display: false
+              },
+              title: {
+                display: false,
+                text: ''
+              }
+            }
+          }
+        });
+      }
+      const ctxDonut = document.getElementById('regionDonutChart');
+      if (ctxDonut) {
+ 
+        const regionDonutChart = new Chart(ctxDonut, {
+          type: 'doughnut',
+          data: {
+            labels: ['Nairobi', 'Mombasa', 'Kisumu', 'Naivasha', 'Other'],
+            datasets: [
+              {
+                label: 'Calls by Region',
+                data: [200, 100, 75, 50, 60],
+                backgroundColor: [
+                  '#3ab54a',
+                  '#f7b924',
+                  '#f44165',
+                  '#2c99ff',
+                  '#9d9d9d'
+                ],
+                hoverOffset: 6
+              }
+            ]
+          },
+          options: {
+            responsive: true,
+            cutout: '60%', 
+            plugins: {
+              legend: {
+                position: 'right'
+              },
+              title: {
+                display: false,
+                text: ''
+              }
+            }
+          }
+        });
+      }
+
+    });
+  </script>
+
 </body>
 </html>
