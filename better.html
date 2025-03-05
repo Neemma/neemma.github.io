@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Safaricom - Batch Processing & Dashboard</title>
+  <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin />
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;700&display=swap"
+    as="style" onload="this.rel='stylesheet'" />
+  <link rel="icon" type="image/x-icon" href="data:image/x-icon;base64," />
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <style>
+    body {
+      font-family: "Work Sans", "Noto Sans", "Segoe UI Emoji", sans-serif;
+      background-color: #f1f1f1;
+    }
+
+    @keyframes slideUp {
+      0% {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .slide-in {
+      animation: slideUp 0.4s ease-out forwards;
+    }
+
+    .spinner {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #3ab54a;
+      border-radius: 50%;
+      width: 36px;
+      height: 36px;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      0% {
+        transform: rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+  </style>
+</head>
+
+<body class="min-h-screen flex flex-col">
+
+  <header class="bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between">
+    <div class="flex items-center gap-4">
+      <h1 class="text-[#3ab54a] text-xl font-bold tracking-tight">
+        Safaricom
+      </h1>
+      <span class="text-sm text-gray-700 font-medium">
+        Batch Processing Dashboard
+      </span>
+    </div>
+
+    <nav class="flex items-center gap-6">
+      <a href="#" class="text-sm text-gray-700 hover:text-[#111714]">Home</a>
+      <a href="#" class="text-sm text-gray-700 hover:text-[#111714]">Coaching</a>
+      <a href="#" class="text-sm text-gray-700 hover:text-[#111714]">Admin</a>
+    </nav>
+  </header>
+
+  <main class="flex-1 p-4">
+
+    <section class="bg-white rounded-lg shadow mb-6 p-4">
+      <h2 class="text-lg font-bold text-gray-800 mb-3">Incoming Audio Files</h2>
+
+      <div id="audioStack" class="relative w-full h-[300px] border border-gray-300 rounded overflow-auto p-4">
+        <p class="text-sm text-gray-400 text-center" id="stackEmptyLabel">
+          Waiting for new audio files...
+        </p>
+      </div>
+    </section>
+
+    <section class="bg-white rounded-lg shadow p-4">
+      <h2 class="text-lg font-bold text-gray-800 mb-3">Dashboard Overview</h2>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div class="bg-gray-50 p-4 rounded shadow-sm flex flex-col gap-2">
+          <p class="text-sm text-gray-600">Live Count (Today)</p>
+          <h3 id="liveCount" class="text-2xl font-bold text-[#111714]">1340</h3>
+          <p class="text-xs text-green-600">+3% from last hour</p>
+        </div>
+
+        <div class="bg-gray-50 p-4 rounded shadow-sm flex flex-col gap-2">
+          <p class="text-sm text-gray-600">Overall Churn Likelihood</p>
+          <h3 class="text-2xl font-bold text-[#111714]">Low</h3>
+          <div class="flex items-center gap-1">
+            <span class="w-3 h-3 bg-green-400 rounded-full inline-block"></span>
+            <p class="text-xs text-gray-600">Steady</p>
+          </div>
+        </div>
+
+        <div class="bg-gray-50 p-4 rounded shadow-sm flex flex-col gap-2">
+          <p class="text-sm text-gray-600">Per Region Sentiment</p>
+          <ul class="text-sm text-gray-700 space-y-1">
+            <li>
+              Nairobi:
+              <span class="text-green-600 font-medium">Positive</span>
+            </li>
+            <li>
+              Mombasa:
+              <span class="text-yellow-600 font-medium">Neutral</span>
+            </li>
+            <li>
+              Kisumu:
+              <span class="text-red-600 font-medium">Negative</span>
+            </li>
+          </ul>
+        </div>
+
+        <div class="bg-gray-50 p-4 rounded shadow-sm flex flex-col gap-2">
+          <p class="text-sm text-gray-600">Agents Requiring Coaching</p>
+          <h3 class="text-2xl font-bold text-[#111714]">5</h3>
+          <p class="text-xs text-red-600">High escalation calls up 10%</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="bg-white p-4 rounded shadow-sm">
+          <h3 class="text-md font-bold text-gray-800 mb-2">Top Agents</h3>
+          <ul class="text-sm text-gray-700 space-y-2">
+            <li class="flex items-start justify-between">
+              <div>
+                <p class="font-medium">Agent Mary K.</p>
+                <p class="text-xs text-gray-500">Avg Rating: 4.8 | Res Speed: 2m</p>
+                <p class="text-xs text-green-600">Coaching Score +15%</p>
+              </div>
+              <span class="text-green-700 bg-green-100 px-2 py-0.5 rounded text-xs font-semibold">#1</span>
+            </li>
+            <li class="flex items-start justify-between">
+              <div>
+                <p class="font-medium">Agent David O.</p>
+                <p class="text-xs text-gray-500">Avg Rating: 4.5 | Res Speed: 3m</p>
+                <p class="text-xs text-green-600">Coaching Score +10%</p>
+              </div>
+              <span class="text-green-700 bg-green-100 px-2 py-0.5 rounded text-xs font-semibold">#2</span>
+            </li>
+            <li class="flex items-start justify-between">
+              <div>
+                <p class="font-medium">Agent Amani T.</p>
+                <p class="text-xs text-gray-500">Avg Rating: 4.4 | Res Speed: 2.5m</p>
+                <p class="text-xs text-blue-600">Stable Performance</p>
+              </div>
+              <span class="text-blue-700 bg-blue-100 px-2 py-0.5 rounded text-xs font-semibold">#3</span>
+            </li>
+          </ul>
+        </div>
+
+        <div class="bg-white p-4 rounded shadow-sm">
+          <h3 class="text-md font-bold text-gray-800 mb-2">Agents Needing Coaching</h3>
+          <ul class="text-sm text-gray-700 space-y-2">
+            <li>
+              <p class="font-medium">Agent Lucy K.</p>
+              <p class="text-xs text-gray-500">High escalation calls & slow resolution</p>
+              <p class="text-xs text-red-600">Coaching Score -8%</p>
+            </li>
+            <li>
+              <p class="font-medium">Agent Kevin M.</p>
+              <p class="text-xs text-gray-500">Struggles with negative sentiment calls</p>
+              <p class="text-xs text-red-600">Escalation +12%</p>
+            </li>
+            <li>
+              <p class="font-medium">Agent Sarah N.</p>
+              <p class="text-xs text-gray-500">Needs better tone with upset customers</p>
+              <p class="text-xs text-yellow-600">Stable but borderline performance</p>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="bg-white border-t border-gray-200 p-4 text-center text-sm text-gray-500">
+    &copy; 2025 Safonic
+  </footer>
+
+  <script>
+    let liveCountEl = document.getElementById('liveCount');
+    let liveCount = 1340;
+
+    function getRandomInt(min, max) {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+    function simulateBulkIncrease() {
+      const numberOfIncreases = getRandomInt(0, 3);
+      liveCount += numberOfIncreases;
+      liveCountEl.textContent = liveCount;
+    }
+    setInterval(simulateBulkIncrease, 1500);
+
+    const audioStack = document.getElementById('audioStack');
+    const stackEmptyLabel = document.getElementById('stackEmptyLabel');
+
+    let fileIndex = 678008;
+    function generateNewFileCard() {
+      if (stackEmptyLabel) {
+        stackEmptyLabel.remove();
+      }
+
+      const card = document.createElement('div');
+      card.classList.add(
+        'slide-in',
+        'bg-[#f0f4f2]',
+        'shadow',
+        'rounded',
+        'p-2',
+        'mb-2',
+        'border-l-4',
+        'border-[#3ab54a]',
+        'text-sm',
+        'text-gray-700'
+      );
+      card.innerHTML = `
+        <p><strong>File #${fileIndex}</strong> - audio_record_${Date.now()}.mp3</p>
+        <p class="text-xs text-gray-500">Received at ${new Date().toLocaleTimeString()}</p>
+      `;
+      fileIndex++;
+      audioStack.appendChild(card);
+
+      audioStack.scrollTop = audioStack.scrollHeight;
+    }
+
+    setInterval(generateNewFileCard, 2000);
+  </script>
+
+</body>
+</html>
